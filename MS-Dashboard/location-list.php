@@ -86,23 +86,48 @@
                                 </div>
                             </div>
                             <?php 
-                               if (isset($_POST['LocationsName']) && empty($csrf_error)) {
-                                $LocationsName = filter_var(trim($_POST["LocationsName"]), FILTER_SANITIZE_STRING);
-                                $CurrentDate = date("Y-m-d H:i:s");
-                                $stmt = $db->prepare("INSERT INTO `master_location` (`location_name`, `deletedstatus`, `updated_at`, `created_at`) VALUES (?, '0', NULL, current_timestamp())");
-                                $stmt->bind_param("s", $LocationsName);
-                                if ($stmt->execute()) {
-                                    $_SESSION['status'] = "Location Name saved successfully.";
-                                    $_SESSION['status_code'] = "success";
+                                                            if (isset($_POST['LocationsName']) && empty($csrf_error)) {
+                                    $LocationsName = filter_var(trim($_POST["LocationsName"]), FILTER_SANITIZE_STRING);
+                                    $CurrentDate = date("Y-m-d H:i:s");
+
+                                    // Prepare the SQL statement to check if the location already exists
+                                    $checklocation = $db->prepare("SELECT * FROM `master_location` WHERE `location_name` = ? AND `deletedstatus` = '0'");
+                                    if ($checklocation) {
+                                        $checklocation->bind_param("s", $LocationsName);
+                                        $checklocation->execute();
+                                        $result1 = $checklocation->get_result();
+
+                                        if ($result1->num_rows == 0) {
+                                            // Prepare the SQL statement to insert the new location
+                                            $stmt = $db->prepare("INSERT INTO `master_location` (`location_name`, `deletedstatus`, `updated_at`, `created_at`) VALUES (?, '0', NULL, current_timestamp())");
+                                            if ($stmt) {
+                                                $stmt->bind_param("s", $LocationsName);
+                                                if ($stmt->execute()) {
+                                                    $_SESSION['status'] = "Location Name saved successfully.";
+                                                    $_SESSION['status_code'] = "success";
+                                                } else {
+                                                    $_SESSION['status'] = "Failed to save Location Name. Please try again.";
+                                                    $_SESSION['status_code'] = "error";
+                                                }
+                                                $stmt->close();
+                                            } else {
+                                                $_SESSION['status'] = "Failed to prepare the insert statement. Please try again.";
+                                                $_SESSION['status_code'] = "error";
+                                            }
+                                        } else {
+                                            $_SESSION['status'] = "This Entry already exists.";
+                                            $_SESSION['status_code'] = "error";
+                                        }
+                                        $checklocation->close();
+                                    } else {
+                                        $_SESSION['status'] = "Failed to prepare the select statement. Please try again.";
+                                        $_SESSION['status_code'] = "error";
+                                    }
                                 } else {
-                                    $_SESSION['status'] = "Failed to save Location Name. Please try again.";
+                                    $_SESSION['status'] = $csrf_error;
                                     $_SESSION['status_code'] = "error";
-                                }
-                                $stmt->close();
-                            } else {
-                                $_SESSION['status'] = $csrf_error;
-                                $_SESSION['status_code'] = "error";
-                            }
+}
+
                             ?>
                     <!-------- tab -------->
                     <div class="tab-content m-tab">
@@ -157,24 +182,42 @@
                                                                 </div>
                                                             </div>
                                                             <?php 
-                                                                if (isset($_POST['EditLocationName']) && empty($csrf_error)) {
-                                                                    // Sanitize the input
-                                                                    $EditLocationName = filter_var(trim($_POST["EditLocationName"]), FILTER_SANITIZE_STRING);
-                                                                    $recordID = mysqli_real_escape_string($db, $_POST['recordID']);
-                                                                    $CurrentDate = date("Y-m-d H:i:s");
-                                                                    $stmt = $db->prepare("UPDATE `master_location` SET `location_name`=?, `updated_at`=? WHERE id=?");
-                                                                    $stmt->bind_param("ssi", $EditLocationName, $CurrentDate, $recordID);                                                                
-                                                                    if ($stmt->execute()) {
-                                                                        $_SESSION['Edit_status'] = "Location Name updated successfully.";
-                                                                        $_SESSION['Edit_status_code'] = "success";
-                                                                    } else {
-                                                                        $_SESSION['Edit_status'] = "Failed to update Location Name. Please try again.";
-                                                                        $_SESSION['Edit_status_code'] = "error";
-                                                                    }
+                                                               if (isset($_POST['EditLocationName']) && empty($csrf_error)) {
+                                                                // Sanitize the input
+                                                            $EditLocationName = filter_var(trim($_POST["EditLocationName"]), FILTER_SANITIZE_STRING);
+                                                            $recordID = filter_var(trim($_POST['recordID']), FILTER_SANITIZE_NUMBER_INT);
+                                                            $CurrentDate = date("Y-m-d H:i:s");
+                                                            $deletedstatus = '0';
+
+                                                            // Check if location name exists in the master_sports table and is not deleted
+                                                            $stmt = $db->prepare("SELECT * FROM `master_location` WHERE `location_name` = ? AND `deletedstatus` = ?");
+                                                            $stmt->bind_param("si", $EditLocationName, $deletedstatus); // Use $EditLocationName instead of $SportsName
+                                                            $stmt->execute();
+                                                            $result = $stmt->get_result();
+
+                                                            if ($result->num_rows == 0) {
+                                                                // Update location name in the master_location table
+                                                                $stmt = $db->prepare("UPDATE `master_location` SET `location_name` = ?, `updated_at` = ? WHERE `id` = ?");
+                                                                $stmt->bind_param("ssi", $EditLocationName, $CurrentDate, $recordID);
+                                                                
+                                                                if ($stmt->execute()) {
+                                                                    $_SESSION['Edit_status'] = "Location Name updated successfully.";
+                                                                    $_SESSION['Edit_status_code'] = "success";
                                                                 } else {
-                                                                    $_SESSION['Edit_status'] = $csrf_error;
+                                                                    $_SESSION['Edit_status'] = "Failed to update Location Name. Please try again.";
                                                                     $_SESSION['Edit_status_code'] = "error";
                                                                 }
+                                                            } else {
+                                                                $_SESSION['Edit_status'] = "Location name already exists in Location.";
+                                                                $_SESSION['Edit_status_code'] = "error";
+                                                            }
+
+                                                            $stmt->close();
+                                                        } else {
+                                                            $_SESSION['Edit_status'] = $csrf_error;
+                                                            $_SESSION['Edit_status_code'] = "error";
+                                                        }
+
                                                             ?>
                                                         </div>
                                                     </div>

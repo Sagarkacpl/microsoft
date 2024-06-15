@@ -87,17 +87,32 @@
                             </div>
                             <?php 
                                if (isset($_POST['SportsName']) && empty($csrf_error)) {
+                                // Sanitize the input
                                 $SportsName = filter_var(trim($_POST["SportsName"]), FILTER_SANITIZE_STRING);
-                                $CurrentDate = date("Y-m-d H:i:s");
-                                $stmt = $db->prepare("INSERT INTO `master_sports` (`sports_name`, `deletedstatus`, `updated_at`, `created_at`) VALUES (?, '0', NULL, current_timestamp())");
+
+                                // Prepare the query to check if the sports name already exists
+                                $stmt = $db->prepare("SELECT * FROM `master_sports` WHERE `sports_name` = ? AND `deletedstatus` = '0'");
                                 $stmt->bind_param("s", $SportsName);
-                                if ($stmt->execute()) {
-                                    $_SESSION['status'] = "Sport Name saved successfully.";
-                                    $_SESSION['status_code'] = "success";
+                                $stmt->execute();
+                                $result = $stmt->get_result();
+
+                                if ($result->num_rows == 0) {
+                                    // Prepare the insert statement
+                                    $stmt = $db->prepare("INSERT INTO `master_sports` (`sports_name`, `deletedstatus`, `updated_at`, `created_at`) VALUES (?, '0', NULL, current_timestamp())");
+                                    $stmt->bind_param("s", $SportsName);
+                                    if ($stmt->execute()) {
+                                        $_SESSION['status'] = "Sport Name saved successfully.";
+                                        $_SESSION['status_code'] = "success";
+                                    } else {
+                                        $_SESSION['status'] = "Failed to save Sport Name. Please try again.";
+                                        $_SESSION['status_code'] = "error";
+                                    }
                                 } else {
-                                    $_SESSION['status'] = "Failed to save Sport Name. Please try again.";
+                                    $_SESSION['status'] = "This Entry already exists.";
                                     $_SESSION['status_code'] = "error";
                                 }
+
+                                // Close the statement
                                 $stmt->close();
                             } else {
                                 $_SESSION['status'] = $csrf_error;
@@ -157,24 +172,42 @@
                                                                 </div>
                                                             </div>
                                                             <?php 
-                                                                if (isset($_POST['EditSportsName']) && empty($csrf_error)) {
-                                                                    // Sanitize the input
-                                                                    $EditSportsName = filter_var(trim($_POST["EditSportsName"]), FILTER_SANITIZE_STRING);
-                                                                    $recordID = mysqli_real_escape_string($db, $_POST['recordID']);
-                                                                    $CurrentDate = date("Y-m-d H:i:s");
-                                                                    $stmt = $db->prepare("UPDATE `master_sports` SET `sports_name`=?, `updated_at`=? WHERE id=?");
-                                                                    $stmt->bind_param("ssi", $EditSportsName, $CurrentDate, $recordID);                                                                
-                                                                    if ($stmt->execute()) {
-                                                                        $_SESSION['Edit_status'] = "Sport Name updated successfully.";
-                                                                        $_SESSION['Edit_status_code'] = "success";
-                                                                    } else {
-                                                                        $_SESSION['Edit_status'] = "Failed to update Sport Name. Please try again.";
-                                                                        $_SESSION['Edit_status_code'] = "error";
-                                                                    }
-                                                                } else {
-                                                                    $_SESSION['Edit_status'] = $csrf_error;
-                                                                    $_SESSION['Edit_status_code'] = "error";
-                                                                }
+                                                               if (isset($_POST['EditSportsName']) && empty($csrf_error)) {
+    // Sanitize the input
+    $EditSportsName = filter_var(trim($_POST["EditSportsName"]), FILTER_SANITIZE_STRING);
+    $recordID = mysqli_real_escape_string($db, $_POST['recordID']);
+    $CurrentDate = date("Y-m-d H:i:s");
+
+    // Prepare the SQL statement to check for existing sport name
+    $stmt = $db->prepare("SELECT * FROM `master_sports` WHERE `sports_name` = ? AND `deletedstatus` = '0'");
+    $stmt->bind_param("s", $EditSportsName);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Check if the sport name already exists
+    if ($result->num_rows == 0) {
+        // Prepare the SQL statement to update the sport name
+        $stmt = $db->prepare("UPDATE `master_sports` SET `sports_name` = ?, `updated_at` = ? WHERE `id` = ?");
+        $stmt->bind_param("ssi", $EditSportsName, $CurrentDate, $recordID);
+
+        // Execute the statement and set session variables based on the result
+        if ($stmt->execute()) {
+            $_SESSION['Edit_status'] = "Sport Name updated successfully.";
+            $_SESSION['Edit_status_code'] = "success";
+        } else {
+            $_SESSION['Edit_status'] = "Failed to update Sport Name. Please try again.";
+            $_SESSION['Edit_status_code'] = "error";
+        }
+    } else {
+        $_SESSION['Edit_status'] = "Sport Name already exists.";
+        $_SESSION['Edit_status_code'] = "error";
+    }
+} else {
+    // Handle CSRF error
+    $_SESSION['Edit_status'] = $csrf_error;
+    $_SESSION['Edit_status_code'] = "error";
+}
+
                                                             ?>
                                                         </div>
                                                     </div>
