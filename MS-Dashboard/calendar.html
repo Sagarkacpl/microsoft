@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Venue Booking</title>
+  <!-- base:css -->
+  <link rel="stylesheet" href="vendors/mdi/css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="vendors/feather/feather.css">
+  <link rel="stylesheet" href="vendors/base/vendor.bundle.base.css">
+  <!-- endinject -->
+  <!-- plugin css for this page -->
+  <link rel="stylesheet" href="vendors/flag-icon-css/css/flag-icon.min.css" />
+  <link rel="stylesheet" href="vendors/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="vendors/jquery-bar-rating/fontawesome-stars-o.css">
+  <link rel="stylesheet" href="vendors/jquery-bar-rating/fontawesome-stars.css">
+  <!-- End plugin css for this page -->
+  <!-- inject:css -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- endinject -->
+  <link rel="shortcut icon" href="images/faviconn.png" />
+
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+
+
+</head>
+
+<body>
+  <div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+        <a class="navbar-brand brand-logo" href="index.html"><img src="images/arete-logo.png" alt="logo" /></a>
+        <a class="navbar-brand brand-logo-mini" href="index.html"><img src="images/arete-logo.png" alt="logo" /></a>
+      </div>
+      <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+        <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+          <span class="icon-menu"></span>
+        </button>
+
+        <ul class="navbar-nav navbar-nav-right">
+
+          <li class="nav-item dropdown d-flex mr-4 ">
+            <a class="nav-link count-indicator dropdown-toggle d-flex align-items-center justify-content-center"
+              id="notificationDropdown" href="#" data-toggle="dropdown">
+              <i class="icon-head"></i> <span style="margin-top: 5px; padding: 5px;">Hello User</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list"
+              aria-labelledby="notificationDropdown">
+              <a class="dropdown-item preview-item">
+                <i class="icon-inbox"></i> Logout
+              </a>
+            </div>
+          </li>
+
+        </ul>
+        <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
+          data-toggle="offcanvas">
+          <span class="icon-menu"></span>
+        </button>
+      </div>
+    </nav>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+      <!-- partial:partials/_sidebar.html -->
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="icon-box menu-icon"></i>
+              <span class="menu-title">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="reports.html">
+              <i class="icon-file menu-icon"></i>
+              <span class="menu-title">Reports</span>
+            </a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="calendar.html">
+              <i class="icon-pie-graph menu-icon"></i>
+              <span class="menu-title">Calendar</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="sports.html">
+              <i class="icon-command menu-icon"></i>
+              <span class="menu-title">Sports</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="venue.html">
+              <i class="icon-help menu-icon"></i>
+              <span class="menu-title">Location</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <!-- partial -->
+      <div class="main-panel">
+        <div class="content-wrapper">
+          <div class="row">
+            <div class="col-sm-6 mb-4 mb-xl-0">
+              <h4 class="font-weight-bold text-dark">Calendar</h4>
+            </div>
+            <div class="col-sm-6 mb-4 mb-xl-0">
+              <div class="indicator text-right">
+                <ul>
+                  <li><span class="indicator-avail"></span> Available</li>
+                  <li><span class="indicator-unavail"></span> Unavailable</li>
+                  <li><span class="indicator-book"></span> Booked</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-------- tab -------->
+          <div class="row">
+            <div class="col-md-3">
+              <select class="form-control form-control-lg mt-5" id="exampleFormControlSelect1">
+                <option>Cricket</option>
+                <option>Lawn Tennis</option>
+                <option>Table Tennis</option>
+                <option>Cricket</option>
+                <option>Badminton</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <ul class="nav nav-tabs m-tab-li mb-4 mt-4 border-0 float-right">
+                <li class="active" data-active="#week"><a data-toggle="tab" href="#week" class="active">Week</a></li>
+                <li data-active="#day"><a data-toggle="tab" href="#day">Day</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="tab-content m-tab">
+            <div id="week" class="tab-pane fade in active show" style="display: block;">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title pb-2">12/05/2024 - 18/05/2024</h4>
+                  <div class="event-table table-responsive">
+                    <table class="table table-bordered">
+                      <tr>
+                        <th></th>
+                        <th>12/05/2024</th>
+                        <th>13/05/2024</th>
+                        <th>14/05/2024</th>
+                        <th>15/05/2024</th>
+                        <th>16/05/2024</th>
+                        <th>17/05/2024</th>
+                        <th>18/05/2024</th>
+                      </tr>
+                      <tr>
+                        <td>9AM-10AM</td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Rakesh Kumar
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Ritesh Kumar
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="unavailable-seat"></td>
+                      </tr>
+                      <tr>
+                        <td>10AM-11AM</td>
+                        <td class="available-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Kamal Kumar
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Rohit Sharma
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>11AM-12PM</td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Hardik
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Manish
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="unavailable-seat"></td>
+                      </tr>
+                      <tr>
+                        <td>12PM-1PM</td>
+                        <td class="available-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Nisha Kaundal
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="available-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Raghaw
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Parkash Jha
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>1PM-2PM</td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Gourav Saini
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Abhishek
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="unavailable-seat"></td>
+                      </tr>
+                      <tr>
+                        <td>2PM-3PM</td>
+                        <td class="available-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Ankur Tripathi
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="available-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Arjun Adhikari
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                        <td class="available-seat"></td>
+                        <td class="unavailable-seat"></td>
+                        <td class="booked-seat">
+                          <div class="booked-person-name">
+                            Abhijeet
+                            <br>
+                            (Cricket)
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="day" class="tab-pane fade">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title pb-2">18/05/2024</h4>
+                  <div class="event-table table-responsive">
+                    <table class="table table-bordered">
+                      <tr>
+                        <td style="width: 150px;" class="p-3">9AM-10AM</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td style="width: 100px;" class="p-3">10AM-11AM</td>
+                        <td><div class="booked-person-name">
+                          Rohit Sharma
+                          <br>
+                          (Cricket)
+                        </div></td>
+                      </tr>
+                      <tr>
+                        <td style="width: 100px;" class="p-3">11AM-12PM</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td style="width: 100px;" class="p-3">12PM-1PM</td>
+                        <td><div class="booked-person-name">
+                          Parkash Jha
+                          <br>
+                          (Cricket)
+                        </div></td>
+                      </tr>
+                      <tr>
+                        <td style="width: 100px;" class="p-3">1PM-2PM</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td style="width: 100px;" class="p-3">2PM-3PM</td>
+                        <td><div class="booked-person-name">
+                          Abhijeet
+                          <br>
+                          (Cricket)
+                        </div></td>
+                      </tr>
+                      <tr>
+                        <td style="width: 100px;" class="p-3">3PM-4PM</td>
+                        <td></td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- content-wrapper ends -->
+        <!-- partial:partials/_footer.html -->
+        <footer class="footer">
+          <div class="d-sm-flex justify-content-center justify-content-sm-between">
+            <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © 2024</span>
+            <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> Design & Developed by
+              www.aretesoftwares.com</span>
+          </div>
+        </footer>
+
+        <!-- partial -->
+      </div>
+      <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+  <!-- container-scroller -->
+
+
+
+  <!-- base:js -->
+  <script src="vendors/base/vendor.bundle.base.js"></script>
+  <!-- endinject -->
+  <!-- Plugin js for this page-->
+  <!-- End plugin js for this page-->
+  <!-- inject:js -->
+  <script src="js/off-canvas.js"></script>
+  <script src="js/hoverable-collapse.js"></script>
+  <script src="js/template.js"></script>
+  <!-- endinject -->
+  <!-- plugin js for this page -->
+  <script src="vendors/chart.js/Chart.min.js"></script>
+  <script src="vendors/jquery-bar-rating/jquery.barrating.min.js"></script>
+  <!-- End plugin js for this page -->
+  <!-- Custom js for this page-->
+  <script src="js/dashboard.js"></script>
+  <!-- End custom js for this page-->
+</body>
+
+</html>

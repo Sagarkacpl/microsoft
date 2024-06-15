@@ -1,0 +1,358 @@
+/**
+* Template Name: Mentor - v4.7.0
+* Template URL: https://bootstrapmade.com/mentor-free-education-bootstrap-theme/
+* Author: BootstrapMade.com
+* License: https://bootstrapmade.com/license/
+*/
+
+/*--------------------------------------------------------------
+# General
+--------------------------------------------------------------*/
+
+/*------------ Font family Syncopate-------------------*/
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+
+/*------------ Font family quicksand*/
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@100&family=Quicksand:wght@300..700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+
+body {
+	font-family: "Open Sans", sans-serif;
+	color: #444444;
+	background: #fff;
+}
+a {
+	color: #fff;
+	text-decoration: none;
+}
+a:hover {
+	color: #ffd014;
+	text-decoration: none;
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Quicksand',sans-serif;
+	font-weight:600;
+}
+/*----------------Main Banner---------------------*/
+.hero-banner{
+	background: url('../assets/images/main-banner.jpg');
+	background-size: cover;
+	background-position: center center;
+	height: 96vh;
+	position: relative;
+	background-attachment: fixed;
+}
+.hero-banner:before{
+	content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(17, 32, 42, 0.66); /* Change the color and opacity as needed */
+}
+header{
+	position: relative;
+}
+header h2{
+	font-family: "Syncopate", Sans-serif!important;
+	font-size: 25px;
+	color: #fff;
+	font-weight: 400!important;
+	margin-top: 12px;
+}
+.dropdown-menu li a{
+	padding: 10px 70px 12px 30px;
+    border-bottom: 1px solid #e6e6e6;
+}
+.dropdown-menu{
+	position: absolute;
+	display: none;
+	transition:all 300ms ease-out;
+	background: #fff;
+	border: none;
+	border-radius: 10px;
+	box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.1);
+}
+.dropdown:hover .dropdown-menu{
+	display: block;
+	transition: all 300ms ease-out;
+}
+.navbar-light .navbar-nav .nav-link, .navbar-light .navbar-nav .nav-link.active{
+	color: #fff;
+	font-size: 17px;
+	font-family: "Open Sans", sans-serif;
+	padding: 6px 15px 0px 15px;
+}
+.dropdown i{
+	font-size: 10px;
+}
+.hfe-has-submenu-container{
+	margin-top: 65px;
+}
+.hfe-has-submenu-container a{
+	font-size: 16px;
+	font-family: "Open Sans", sans-serif;
+}
+.navbar-light .navbar-nav .nav-link:hover{
+	color:#FFBA00;
+	text-decoration: none;
+}
+.p-2{
+	padding:20px;
+}
+/*.navbar-light .navbar-nav a.active:after{
+	content:'';
+	height: 3px;
+	width: 100%;
+	background-color: #ffd014;
+	z-index: 2;
+}
+.nav-item a:after{
+	position: absolute;
+	display: block;
+	transition: 0.3s;
+}*/
+ul.dropdown-menu li a{
+	color: #595959;
+	font-size: 15px;
+	font-family:"Open Sans", sans-serif;
+}
+ul.dropdown-menu li a:hover{
+	background: transparent;
+	color: #FFBA00;
+}
+.dropdown-link li a{
+	color: #595959;
+	font-size: 15px;
+	border:0px;
+}
+.dropdown-menu ul{
+	list-style: none;
+}
+.dropdown-link li a{
+	padding: 20px;
+}
+.hfe-has-submenu-container .dropdown-menu{
+	border-radius: 0px;
+}
+.hfe-has-submenu-container ul{
+	padding-left: 0px;
+	margin-bottom: 0px;
+}
+.hfe-has-submenu-container .dropdown-menu li a:hover{
+	color:#FFBA00;
+}
+#hero{
+	height: 550px;
+}
+.dropdown-link hr{
+	margin:0.7rem 0;
+}
+.dropdown-link li{
+	margin: 6px;
+}
+#hero h1{
+	font-size: 50px;
+	color: #fff;
+	font-weight: 700;
+	letter-spacing: 4px;
+	line-height: 1.4em;
+}
+#hero p{
+	font-size: 17px;
+	font-family: "Open Sans", sans-serif;
+	color:#fff;
+	font-weight: 600;
+}
+.middle-section{
+	padding: 60px 0px;
+}
+.section-title{
+	font-size: 48px;
+	font-family: 'Quicksand',sans-serif;
+	font-weight: 500;
+	color: #11202a;
+}
+.left-content{
+}
+.count-users{
+	background: #11202a;
+	padding: 10px 0px 10px 20px;
+}
+.count-users .fa{
+	font-size: 20px;
+}
+.heading-sports a{
+	color: #11202a;
+	font-size: 20px;
+	font-family: 'Quicksand',sans-serif;
+	font-weight: 500;
+}
+.right-content{
+	padding: 26px;
+}
+.heading-sports{
+	height: 50%;
+}
+.btn-bg{
+	background: #11202a;
+	padding: 10px;
+	color: #fff;
+}
+.right-content .btn{
+	font-size: 12px;
+	font-family: 'Quicksand',sans-serif;
+	color: #fff;
+	letter-spacing: 2px;
+	line-height: 1em;
+	text-transform: uppercase;
+	font-weight: 600;
+}
+.box-shadow{
+	box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.1);
+}
+.mt-2{
+	margin-top: 20px;
+}
+.middle-section{
+	background-color: #f6f6f9;
+}
+.bottom-section{
+	padding: 60px 0px;
+	background: #fff;
+}
+.form-section{
+	background: #11202a;
+	border-radius: 6px;
+	padding: 30px;
+}
+.form-section h2{
+	color: #fff;
+	font-size: 48px;
+	font-family: 'Quicksand',sans-serif;
+	font-weight: 500;
+	padding-top:25px;
+	padding-bottom: 25px;
+}
+input[type=text]::-webkit-input-placeholder:after {
+       content: '*';
+       color: red; vertical-align: top; font-size: 10px;
+    }
+    input[type=email]::-webkit-input-placeholder:after {
+       content: '*';
+       color: red; vertical-align: top; font-size: 10px;
+    }
+    textarea::-webkit-input-placeholder:after {
+       content: '*';
+       color: red; vertical-align: top; font-size: 10px;
+    }
+    .btn-sm{
+    	width: 100px;
+    	padding: 10px;
+    }
+    .btn-submit{
+    	color: #FFF;
+    	text-transform: uppercase;
+    	background: #ffba00;
+    	border-color: #ffba00;
+    	font-size: 15px;
+    	font-family:"Open Sans", sans-serif;
+    	letter-spacing: 2px;
+    	border-radius: 7px;
+    	font-weight: 600;
+    }
+    .form-control{
+    	border-radius: 2px;
+    	height: 45px;
+    }
+    textarea.form-control{
+    	height: 100px;
+    }
+    .site-footer{
+    	background: #11202a;
+    	padding-top: 20px;
+    }
+	.site-footer p{
+    	color: #fff;
+    	text-align: center;
+    	font-size: 16px;
+    	font-family: "Open Sans", sans-serif;
+    }
+    .border-top{
+    	border-top-color: rgba(0, 11, 33, 0.83)!important;
+    }
+    .top-banner.table-tennis-page{
+    	background: url('../assets/images/table-tennis.jpg');
+    	background-position: 0px -520px;
+    	background-size: cover;
+    	background-repeat: no-repeat;
+    	height: 400px;
+    }
+    .heading-box{
+    	background:#FFBA00;
+    	padding: 50px;
+    }
+    .heading-box h2{
+    	font-size: 48px;
+    	font-family: 'Quicksand',sans-serif;
+    	color: #fff;
+    }
+    .btn-black{
+    	background:#000;
+    	color: #fff;
+    	text-transform: uppercase;
+    	letter-spacing: 2px;
+    	line-height: 1em;
+    	font-weight: 600;
+    	padding: 18px 32px;
+    	border-radius: 7px;
+    }
+    .btn-black:hover{
+    	background:#fff;
+    	color: #000;
+    }
+    .border-right{
+    	padding: 30px;
+    	border-right: 1px solid #e1e1e1;
+    	border-bottom:1px solid #e1e1e1;
+    	background: #fff;
+    }
+    .p-0{
+    	padding: 0px;
+    }
+    .booking h5{
+    	font-size: 18px;
+    	font-weight: 500;
+    	color: #11202a;
+    }
+    .banner-bottom{
+    	margin-top: -100px;
+    }
+    .booking p{
+    	font-size: 15px;
+    	font-family: "Open Sans", sans-serif;
+    	color: #1d394b;
+    }
+    .title-section{
+    	padding: 60px 0 30px 0;
+    }
+    .title-section h2{
+    	font-size: 20px;
+    	font-family: 'Quicksand',sans-serif;
+    	color: #11202a;
+    	font-weight: 500;
+    }
+    .sliding-banner h2{
+    	font-size: 18px;
+    	text-align: center;
+    	font-family: 'Quicksand',sans-serif;
+    	color: #11202a;
+    	font-weight: 500;
+    	margin-bottom: 20px;
+    }
