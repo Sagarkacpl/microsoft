@@ -116,6 +116,31 @@
                                                 </td>
                                                       
                                                 <td>
+
+                                                <button class="btn btn-info btn-sm" onclick="return confirmEditRecord('<?php echo convert_string('encrypt', $read['id']);?>');">Edit</button>
+                                                        <script>
+                                                            function confirmEditRecord(id) {
+                                                                swal({
+                                                                    title: "Are you sure?",
+                                                                    text: "You want to edit this record!",
+                                                                    icon: "warning",
+                                                                    buttons: ["Cancel", "Yes, edit it!"],
+                                                                    dangerMode: true,
+                                                                }).then((willEdit) => {
+                                                                    if (willEdit) {
+                                                                        window.location.href = "edit-event?id=" + id;
+                                                                    }
+                                                                });
+
+                                                              
+                                                                document.querySelector('.swal-button--confirm').style.backgroundColor = "#4CAF50"; // Green color
+                                                                document.querySelector('.swal-button--cancel').style.backgroundColor = "#f44336"; // Red color
+                                                                document.querySelector('.swal-button--cancel').style.color = "#ffffff";
+
+                                                                return false; // Prevent default link action
+                                                            }
+                                                        </script>
+
                                                 <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteRecord('<?php echo convert_string('encrypt', $read['id']);?>');">Delete</button>
                                                         <script>
                                                             function confirmDeleteRecord(id) {
