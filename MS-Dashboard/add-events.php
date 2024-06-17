@@ -134,7 +134,7 @@
                                                 <div class="form-group">
                                                     <label for="LocationImg">Location Image<span
                                                             class="text-danger">*</span></label>
-                                                    <input type="file" name="LocationImg[]" class="form-control form-control-lg"
+                                                    <input type="file" name="LocationImg1[]" class="form-control form-control-lg"
                                                         id="LocationImg" multiple>
                                                 </div>
                                             </div>
@@ -266,7 +266,7 @@
                                             $Description = mysqli_real_escape_string($db, $_POST['Description']);
                                             $Termscondition = mysqli_real_escape_string($db, $_POST['Termscondition']);
                                             $SlotDuration = mysqli_real_escape_string($db, $_POST['SlotDuration']);
-                                            $Location = implode(",", $_POST['Location']);
+                                            
  
                                             if ($_FILES['BannerImages'] != '') {
                                                 $allowed_extensions21 = array('jpg', 'jpeg', 'png','PNG');
@@ -279,31 +279,72 @@
                                                         $BannerImagesFInal = $BannerImages1;
                                                     }
                                                 }
-                                            }                                            
+                                            } 
+                                            
 
-                                            if($_FILES["LocationImg"] != '')
-                                            {
-                                                for ($i = 0;$i < count($_FILES["LocationImg"]["name"]);$i++) {
-                                                    $LocationImg1 = time() . "-" . rand(1000, 9999) . "-DOC-" . $_FILES["LocationImg"]["name"][$i];
-                                                    $LocationImg = str_replace(",", "", "$LocationImg1");
-                                                    if ($_FILES["LocationImg"]["name"][$i] != '') {
-                                                        if (strtolower(end(explode(".", $LocationImg))) == "jpg" OR strtolower(end(explode(".", $LocationImg))) == "jpeg" OR strtolower(end(explode(".", $LocationImg))) == "png") {
-                                                            if (move_uploaded_file($_FILES["LocationImg"]["tmp_name"][$i], "../assets/storage/LocationImages/" . $LocationImg)) {
-                                                                $queryf12 = mysqli_query($db, "SELECT location_img FROM `add_events` WHERE id  = '$latestInsertedID'");
-                                                                $rowf12 = mysqli_fetch_assoc($queryf12);
-                                                                $LocationImg11 = $rowf12['location_img'];
-                                                                if ($LocationImg11 == '') {
-                                                                    $LocationImg111 = $LocationImg;
-                                                                } else {
-                                                                    $LocationImg111 = $LocationImg11 . ',' . $LocationImg;
+                                            $SaveEvent =  mysqli_query($db, "INSERT INTO `add_events`(`id`, `sports_name`, `slot_duration`, `banner_img`, `start_date`, `end_date`, `start_time`, `end_time`, `capacity`, `one_day_slot`, `description`, `terms_condition`, `deleted_status`, `updated_at`, `created_at`) VALUES (NULL,'$SportName','$SlotDuration','$BannerImagesFInal','$BookingStartDate','$BookingEndDate','$StartTime','$EndTime','$TotalCapacity','$OneDaySlotBefore','$Description','$Termscondition','0',NULL,CURRENT_TIMESTAMP)");
+                                            $latestInsertedID = mysqli_insert_id($db);
+
+
+                                            // Loop through each location
+                                            for ($i = 0; $i < count($_POST['Location']); $i++) {
+                                                // Sanitize the location input
+                                                $NewLocation = mysqli_real_escape_string($db, $_POST['Location'][$i]);
+                                        
+                                                // Initialize the attachments variable
+                                                $attachments11 = '';
+                                        
+                                                // Check if files were uploaded for this location
+                                                $fileInputName = "LocationImg" . ($i + 1);
+                                                
+                                                if (!empty($_FILES[$fileInputName]["name"][0])) {
+                                                    $uploadedFiles11 = array();
+                                                    $totalFiles11 = count($_FILES[$fileInputName]['name']);
+                                        
+                                                    // Loop through each file
+                                                    for ($k = 0; $k < $totalFiles11; $k++) {
+                                                        $fileName11 = time() . "-" . rand(1000, 9999) . "-DOC-" . basename($_FILES[$fileInputName]['name'][$k]);
+                                                        $fileTmpName11 = $_FILES[$fileInputName]['tmp_name'][$k];
+                                        
+                                                        // Move uploaded file to a directory
+                                                        $uploadDir11 = '../assets/storage/LocationImages/';
+                                                        $uploadPath11 = $uploadDir11 . basename($fileName11);
+                                        
+                                                        if ($_FILES[$fileInputName]['error'][$k] !== UPLOAD_ERR_OK) {
+                                                            echo "File upload error: " . $_FILES[$fileInputName]['error'][$k] . " for file " . $_FILES[$fileInputName]['name'][$k] . "<br>";
+                                                            continue;
+                                                        }
+                                        
+                                                        if (move_uploaded_file($fileTmpName11, $uploadPath11)) {
+                                                            // Store the uploaded file names in the array
+                                                            $uploadedFiles11[] = $fileName11;
+                                                        } else {
+                                                            // Print error if the file couldn't be moved
+                                                            echo "Failed to move file $fileTmpName11 to $uploadPath11<br>";
+                                                            // Check if the directory is writable
+                                                            if (!is_writable($uploadDir11)) {
+                                                                echo "Upload directory is not writable.<br>";
                                                             }
                                                         }
                                                     }
+                                                    // Concatenate file names into a single string separated by commas
+                                                    $attachments11 = implode(",", $uploadedFiles11);
+                                                } else {
+                                                    echo "No files uploaded for location $NewLocation<br>";
                                                 }
-                                            
+                                        
+                                                // Insert the location and image data into the database
+                                                $sql = mysqli_query($db, "INSERT INTO `eventlocationimage` (`id`, `eventID`, `location`, `location_img`, `deletedStatus`, `CreatedAt`) VALUES (NULL, '$latestInsertedID', '$NewLocation', '$attachments11', '0', current_timestamp())");
+                                        
+                                                // if ($db->query($sql) === TRUE) {
+                                                //     echo "New record created successfully for location $NewLocation<br>";
+                                                // } else {
+                                                //     echo "Error: " . $sql . "<br>" . $db->error;
+                                                // }
                                             }
-                                        }
-                                            $SaveEvent =  mysqli_query($db, "INSERT INTO `add_events`(`id`, `sports_name`, `slot_duration`, `banner_img`, `location`, `location_img`, `start_date`, `end_date`, `start_time`, `end_time`, `capacity`, `one_day_slot`, `description`, `terms_condition`, `deleted_status`, `updated_at`, `created_at`) VALUES (NULL,'$SportName','$SlotDuration','$BannerImagesFInal','$Location','$LocationImg111','$BookingStartDate','$BookingEndDate','$StartTime','$EndTime','$TotalCapacity','$OneDaySlotBefore','$Description','$Termscondition','0',NULL,CURRENT_TIMESTAMP)");
+                                        
+
+
                                             if($SaveEvent)
                                             {
                                                 $_SESSION['status'] = "Sport Name saved successfully.";
@@ -344,7 +385,7 @@
     <script src="js/off-canvas.js"></script>
     <script src="js/hoverable-collapse.js"></script>
     <script src="js/template.js"></script>
-    <script src="js/validation.js"></script>
+    <!-- <script src="js/validation.js"></script> -->
     <!-- endinject -->
     <!-- plugin js for this page -->
     <script src="vendors/chart.js/Chart.min.js"></script>
@@ -491,7 +532,7 @@
                 count++;
                 document.getElementById('NonConformitysDocument').insertAdjacentHTML(
                     'beforeend',
-                    '<div class="row" id="row' + count + '"><div class="col-md-5"><div class="form-group"><label for="location">Location<span class="text-danger">*</span></label><select name="Location[]" id="location" class="form-control form-control-lg" style="padding: 18px;"><option value="">Select Location</option><?php $SportsQuery = mysqli_query($db, "SELECT * FROM `master_location` WHERE deletedstatus='0' ORDER BY location_name ASC");while($sports = mysqli_fetch_assoc($SportsQuery)){?><option value="<?php echo $sports['id']; ?>"><?php echo $sports['location_name']; ?></option><?php } ?></select></div></div><div class="col-md-5"><div class="form-group"><label for="LocationImg">Location Image<span class="text-danger">*</span></label><input name="LocationImg[]" type="file" class="form-control form-control-lg" id="LocationImg" multiple></div></div><div class="col-md-2"><div class="col-md-1"><button type="button" class="btn btn-danger mt-5" onclick="delete_reports(\'row' + count + '\')">Delete</button></div></div>'
+                    '<div class="row" id="row' + count + '"><div class="col-md-5"><div class="form-group"><label for="location">Location<span class="text-danger">*</span></label><select name="Location[]" id="location" class="form-control form-control-lg" style="padding: 18px;"><option value="">Select Location</option><?php $SportsQuery = mysqli_query($db, "SELECT * FROM `master_location` WHERE deletedstatus='0' ORDER BY location_name ASC");while($sports = mysqli_fetch_assoc($SportsQuery)){?><option value="<?php echo $sports['id']; ?>"><?php echo $sports['location_name']; ?></option><?php } ?></select></div></div><div class="col-md-5"><div class="form-group"><label for="LocationImg">Location Image<span class="text-danger">*</span></label><input name="LocationImg' + count + '[]" type="file" class="form-control form-control-lg" id="LocationImg" multiple></div></div><div class="col-md-2"><div class="col-md-1"><button type="button" class="btn btn-danger mt-5" onclick="delete_reports(\'row' + count + '\')">Delete</button></div></div>'
                 );
             }
             function delete_reports(rowId) {
