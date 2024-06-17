@@ -1,12 +1,22 @@
 <?php 
-    session_start();
-    error_reporting(0);
+    // session_start();
+    error_reporting(E_ALL);
+    ini_set('display_errors',1);
     include('inc/function.php');
     include('inc/csrf_token.php');
     include('inc/dbcon.php');
     if(empty($_SESSION["AdminID"])){
       header("Location: index");
     }
+
+    $id = convert_string('decrypt', $_GET['id']);
+    $query = "SELECT * FROM `add_events` WHERE deleted_status='0' AND id=?";
+    $stmt = $db->prepare($query);
+    $stmt->bind_param("s", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $read = $result->fetch_assoc();
+    
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -84,9 +94,7 @@
                                                         $SportsQuery = mysqli_query($db, "SELECT * FROM `master_sports` WHERE deletedstatus='0' ORDER BY sports_name ASC");
                                                         while($sports = mysqli_fetch_assoc($SportsQuery)){
                                                     ?>
-                                                    <option value="<?php echo $sports['id']; ?>">
-                                                        <?php echo $sports['sports_name']; ?>
-                                                    </option>
+                                                    <option <?php if($read['sports_name'] ===  $sports['id']) { echo "selected"; } ?> value="<?php echo $sports['id']; ?>"><?php echo $sports['sports_name']; ?></option>
                                                     <?php } ?>
                                                 </select>
                                             </div>
@@ -100,53 +108,122 @@
                                                     placeholder="" required>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-1">
+                                            <label for="" class="mt-5"></label>
+                                            <a href="../assets/storage/BannerImages/<?php echo $read['banner_img']; ?>" target="_blank" rel="noopener noreferrer">
+                                                <img src="../assets/storage/Image_Icon.png" alt="pdf" style="width:50%">
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="SlotDuration">Slot Duration<span class="text-danger">*
                                                     </span> <small class="text-danger">(in Minutes)</small></label>
                                                 <input type="number" name="SlotDuration" class="form-control form-control-lg"
-                                                    id="SlotDuration" placeholder="Slot Duration" required>
+                                                    id="SlotDuration" value="<?php echo $read['slot_duration']; ?>" placeholder="Slot Duration" required>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="border p-4 mb-3 rounded">
-                                        <div class="row">
-                                            <div class="col-md-5">
-                                                <div class="form-group">
-                                                    <label for="location">Location<span
-                                                            class="text-danger">*</span></label>
-                                                    <select name="Location[]" id="location" class="form-control form-control-lg"
-                                                        style="padding: 18px;">
-                                                        <option value="">Select Location</option>
-                                                        <?php 
-                                                            $SportsQuery = mysqli_query($db, "SELECT * FROM `master_location` WHERE deletedstatus='0' ORDER BY location_name ASC");
-                                                            while($sports = mysqli_fetch_assoc($SportsQuery)){
-                                                        ?>
-                                                        <option value="<?php echo $sports['id']; ?>">
-                                                            <?php echo $sports['location_name']; ?>
-                                                        </option>
+                                        <?php 
+                                        $query = mysqli_query($db, "SELECT * FROM `eventlocationimage` WHERE deletedStatus='0' AND eventID='".$read['id']."'");
+                                        $row_num = mysqli_num_rows($query);
+
+                                        if ($row_num > 0) {
+                                            $counts = 1; // Initialize counter for rows
+
+                                            while ($row = mysqli_fetch_assoc($query)) {
+                                                $location_img = explode(",", $row['location_img']); // Split location IDs into an array
+                                                $locationss = $row['location']; // Assuming this is where you store location data
+                                                
+                                                    ?>
+                                                    <div class="row" id="rowdel<?php echo $counts; ?>">
+                                                        <div class="col-md-5">
+                                                            <div class="form-group">
+                                                                <label for="location">Location <span class="text-danger">*</span></label>
+                                                                <select name="Location[]" id="location" class="form-control form-control-lg" style="padding: 18px;">
+                                                                    <option value="">Select Location</option>
+                                                                    <?php 
+                                                                    $SportsQuery = mysqli_query($db, "SELECT * FROM `master_location` WHERE deletedstatus='0' ORDER BY location_name ASC");
+                                                                    while ($sports = mysqli_fetch_assoc($SportsQuery)) {
+                                                                    ?>
+                                                                    <option <?php if ($locationss == $sports['id']) { echo 'selected'; } ?> value="<?php echo $sports['id']; ?>">
+                                                                        <?php echo $sports['location_name']; ?>
+                                                                    </option>
+                                                                    <?php } ?>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="<?php if(!empty($location_img)) {?>col-md-3 <?php } else {?> col-md-5<?php } ?>">
+                                                            <div class="form-group">
+                                                                <label for="LocationImg">Location Image<span class="text-danger">*</span></label>
+                                                                <input type="file" name="LocationImg[]" class="form-control form-control-lg" id="LocationImg" multiple>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <?php foreach($location_img as $img) {?>
+                                                                <a href="../assets/storage/LocationImages/<?php echo $img; ?>" target="_blank" rel="noopener noreferrer"><img src="../assets/storage/Image_Icon.png" alt="Image_Icon" style="width:20%;margin-top: 28px;"></a>
+                                                            <?php }?>
+                                                        </div>
+                                                        <?php if($counts > 1) {?>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="exampleInputUsername1" class="d-block" style="opacity: 0;">aaaa</label>
+                                                                <button type="button" class="btn btn-danger" id="addBtn" onclick="UpdateRecord('rowdel<?php echo $counts; ?>');"> Delete</button>
+                                                            </div>
+                                                        </div>
+                                                        <?php } if($counts == 1) {?>
+                                                        <div class="col-md-2">
+                                                            <div class="form-group">
+                                                                <label for="exampleInputUsername1" class="d-block" style="opacity: 0;">Placeholder Label</label>
+                                                                <button type="button" class="btn btn-primary btn-lg pl-3 pr-3" id="addBtn" onclick="add_reports();"><i class="fa fa-plus"></i> Add More</button>
+                                                            </div>
+                                                        </div>
                                                         <?php } ?>
-                                                    </select>
+                                                    </div>
+                                                    <?php 
+                                                    $counts++; // Increment row counter
+                                        
+                                            } // End while
+                                        } else {
+                                            // If no rows found
+                                            ?>
+                                            <div class="row">
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label for="location">Location<span class="text-danger">*</span></label>
+                                                        <select name="Location[]" id="location" class="form-control form-control-lg" style="padding: 18px;">
+                                                            <option value="">Select Location</option>
+                                                            <?php 
+                                                            $SportsQuery = mysqli_query($db, "SELECT * FROM `master_location` WHERE deletedstatus='0' ORDER BY location_name ASC");
+                                                            while ($sports = mysqli_fetch_assoc($SportsQuery)) {
+                                                            ?>
+                                                            <option value="<?php echo $sports['id']; ?>">
+                                                                <?php echo $sports['location_name']; ?>
+                                                            </option>
+                                                            <?php } ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label for="LocationImg">Location Image<span class="text-danger">*</span></label>
+                                                        <input type="file" name="LocationImg[]" class="form-control form-control-lg" id="LocationImg" multiple>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <div class="form-group">
+                                                        <label for="exampleInputUsername1" class="d-block" style="opacity: 0;">Placeholder Label</label>
+                                                        <button type="button" class="btn btn-primary btn-lg pl-3 pr-3" id="addBtn" onclick="add_reports();"><i class="fa fa-plus"></i> Add More</button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-5">
-                                                <div class="form-group">
-                                                    <label for="LocationImg">Location Image<span
-                                                            class="text-danger">*</span></label>
-                                                    <input type="file" name="LocationImg1[]" class="form-control form-control-lg"
-                                                        id="LocationImg" multiple>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="form-group">
-                                                    <label for="exampleInputUsername1" class="d-block"
-                                                        style="opacity: 0;">aaaaaaaaaaaa</label>
-                                                    <button type="button" class="btn btn-primary btn-lg pl-3 pr-3"
-                                                        id="addBtn" onclick="add_reports();"><i class="fa fa-plus"></i> Add More</button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            <?php 
+                                        }
+                                        ?>
+
+
+
                                         <div id="NonConformitysDocument"></div>
                                     </div>
                                     
@@ -156,16 +233,14 @@
                                                 <label for="EventStartDate">Booking Start Date<span
                                                         class="text-danger">*</span></label>
                                                 <input type="date" name="BookingStartDate" id="EventStartDate" class="form-control"
-                                                    placeholder="Booking Start Date" required
-                                                    aria-label="Booking Start Date">
+                                                    placeholder="Booking Start Date" required value="<?php echo $read['start_date']; ?>" aria-label="Booking Start Date">
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="EventEndDate">Booking End Date</label>
                                                 <input type="date" name="BookingEndDate" id="EventEndDate" class="form-control"
-                                                    placeholder="Booking End Date" required
-                                                    aria-label="Booking End Date">
+                                                    placeholder="Booking End Date" required value="<?php echo $read['end_date']; ?>" aria-label="Booking End Date">
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -173,7 +248,7 @@
                                                 <label for="EventStatTime">Start Time <span
                                                         class="text-danger">*</span></label>
                                                 <input type="time" name="StartTime" class="form-control form-control-lg"
-                                                    id="EventStatTime" placeholder="">
+                                                    id="EventStatTime" placeholder="" value="<?php echo $read['start_time']; ?>">
                                             </div>
                                         </div>
 
@@ -182,7 +257,7 @@
                                                 <label for="EventEndTime">End Time <span
                                                         class="text-danger">*</span></label>
                                                 <input type="time" name="EndTime" class="form-control form-control-lg"
-                                                    id="EventEndTime" placeholder="">
+                                                    id="EventEndTime" placeholder="" value="<?php echo $read['end_time']; ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -190,7 +265,7 @@
                                                 <label for="exampleInputUsername1">Capacity<span
                                                         class="text-danger">*</span></label>
                                                 <input type="number" name="TotalCapacity" class="form-control form-control-lg"
-                                                    id="exampleInputUsername1" placeholder="">
+                                                    id="exampleInputUsername1" placeholder="" value="<?php echo $read['capacity']; ?>">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -200,36 +275,36 @@
                                                 <select name="OneDaySlotBefore" id="exampleInputUsername1"
                                                     class="form-control form-control-lg" style="padding: 15px;">
                                                     <option value="">Select Option</option>
-                                                    <option value="1">1 Day</option>
-                                                    <option value="2">2 Day</option>
-                                                    <option value="3">3 Day</option>
-                                                    <option value="4">4 Day</option>
-                                                    <option value="5">5 Day</option>
-                                                    <option value="6">6 Day</option>
-                                                    <option value="7">7 Day</option>
-                                                    <option value="8">8 Day</option>
-                                                    <option value="9">9 Day</option>
-                                                    <option value="10">10 Day</option>
-                                                    <option value="11">11 Day</option>
-                                                    <option value="12">12 Day</option>
-                                                    <option value="13">13 Day</option>
-                                                    <option value="14">14 Day</option>
-                                                    <option value="15">15 Day</option>
-                                                    <option value="16">16 Day</option>
-                                                    <option value="17">17 Day</option>
-                                                    <option value="18">18 Day</option>
-                                                    <option value="19">19 Day</option>
-                                                    <option value="20">20 Day</option>
-                                                    <option value="21">21 Day</option>
-                                                    <option value="22">22 Day</option>
-                                                    <option value="23">23 Day</option>
-                                                    <option value="24">24 Day</option>
-                                                    <option value="25">25 Day</option>
-                                                    <option value="26">26 Day</option>
-                                                    <option value="27">27 Day</option>
-                                                    <option value="28">28 Day</option>
-                                                    <option value="29">29 Day</option>
-                                                    <option value="30">30 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '1' ) { echo "selected"; } ?> value="1">1 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '2' ) { echo "selected"; } ?> value="2">2 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '3' ) { echo "selected"; } ?> value="3">3 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '4' ) { echo "selected"; } ?> value="4">4 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '5' ) { echo "selected"; } ?> value="5">5 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '6' ) { echo "selected"; } ?> value="6">6 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '7' ) { echo "selected"; } ?> value="7">7 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '8' ) { echo "selected"; } ?> value="8">8 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '9' ) { echo "selected"; } ?> value="9">9 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '10' ) { echo "selected"; } ?> value="10">10 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '11' ) { echo "selected"; } ?> value="11">11 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '12' ) { echo "selected"; } ?> value="12">12 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '13' ) { echo "selected"; } ?> value="13">13 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '14' ) { echo "selected"; } ?> value="14">14 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '15' ) { echo "selected"; } ?> value="15">15 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '16' ) { echo "selected"; } ?> value="16">16 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '17' ) { echo "selected"; } ?> value="17">17 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '18' ) { echo "selected"; } ?> value="18">18 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '19' ) { echo "selected"; } ?> value="19">19 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '20' ) { echo "selected"; } ?> value="20">20 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '21' ) { echo "selected"; } ?> value="21">21 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '22' ) { echo "selected"; } ?> value="22">22 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '23' ) { echo "selected"; } ?> value="23">23 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '24' ) { echo "selected"; } ?> value="24">24 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '25' ) { echo "selected"; } ?> value="25">25 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '26' ) { echo "selected"; } ?> value="26">26 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '27' ) { echo "selected"; } ?> value="27">27 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '28' ) { echo "selected"; } ?> value="28">28 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '29' ) { echo "selected"; } ?> value="29">29 Day</option>
+                                                    <option <?php if($read['one_day_slot'] == '30' ) { echo "selected"; } ?> value="30">30 Day</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -237,19 +312,19 @@
                                             <div class="form-group">
                                                 <label for="exampleInputUsername1">Description</label>
                                                 <textarea name="Description" id="description"
-                                                    class="form-control form-control-lg"></textarea>
+                                                    class="form-control form-control-lg"><?php echo $read['description']; ?></textarea>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="exampleInputUsername1">Terms & Conditions</label>
                                                 <textarea name="Termscondition" id="termscondition"
-                                                    class="form-control form-control-lg"></textarea>
+                                                    class="form-control form-control-lg"><?php echo $read['terms_condition']; ?></textarea>
                                             </div>
                                         </div>
                                         <div class="col-md-12">
                                             <button type="submit" name="save_events" class="btn btn-primary btn-lg pl-3 pr-3"
-                                                id="addBtn">Submit</button>
+                                                id="addBtn">Update</button>
                                         </div>
                                     </div>
                                 </form>
@@ -266,7 +341,7 @@
                                             $Description = mysqli_real_escape_string($db, $_POST['Description']);
                                             $Termscondition = mysqli_real_escape_string($db, $_POST['Termscondition']);
                                             $SlotDuration = mysqli_real_escape_string($db, $_POST['SlotDuration']);
-                                            
+                                            $Location = implode(",", $_POST['Location']);
  
                                             if ($_FILES['BannerImages'] != '') {
                                                 $allowed_extensions21 = array('jpg', 'jpeg', 'png','PNG');
@@ -279,72 +354,32 @@
                                                         $BannerImagesFInal = $BannerImages1;
                                                     }
                                                 }
-                                            } 
-                                            
+                                            }                                            
 
-                                            $SaveEvent =  mysqli_query($db, "INSERT INTO `add_events`(`id`, `sports_name`, `slot_duration`, `banner_img`, `start_date`, `end_date`, `start_time`, `end_time`, `capacity`, `one_day_slot`, `description`, `terms_condition`, `deleted_status`, `updated_at`, `created_at`) VALUES (NULL,'$SportName','$SlotDuration','$BannerImagesFInal','$BookingStartDate','$BookingEndDate','$StartTime','$EndTime','$TotalCapacity','$OneDaySlotBefore','$Description','$Termscondition','0',NULL,CURRENT_TIMESTAMP)");
-                                            $latestInsertedID = mysqli_insert_id($db);
-
-
-                                            // Loop through each location
-                                            for ($i = 0; $i < count($_POST['Location']); $i++) {
-                                                // Sanitize the location input
-                                                $NewLocation = mysqli_real_escape_string($db, $_POST['Location'][$i]);
-                                        
-                                                // Initialize the attachments variable
-                                                $attachments11 = '';
-                                        
-                                                // Check if files were uploaded for this location
-                                                $fileInputName = "LocationImg" . ($i + 1);
-                                                
-                                                if (!empty($_FILES[$fileInputName]["name"][0])) {
-                                                    $uploadedFiles11 = array();
-                                                    $totalFiles11 = count($_FILES[$fileInputName]['name']);
-                                        
-                                                    // Loop through each file
-                                                    for ($k = 0; $k < $totalFiles11; $k++) {
-                                                        $fileName11 = time() . "-" . rand(1000, 9999) . "-DOC-" . basename($_FILES[$fileInputName]['name'][$k]);
-                                                        $fileTmpName11 = $_FILES[$fileInputName]['tmp_name'][$k];
-                                        
-                                                        // Move uploaded file to a directory
-                                                        $uploadDir11 = '../assets/storage/LocationImages/';
-                                                        $uploadPath11 = $uploadDir11 . basename($fileName11);
-                                        
-                                                        if ($_FILES[$fileInputName]['error'][$k] !== UPLOAD_ERR_OK) {
-                                                            echo "File upload error: " . $_FILES[$fileInputName]['error'][$k] . " for file " . $_FILES[$fileInputName]['name'][$k] . "<br>";
-                                                            continue;
-                                                        }
-                                        
-                                                        if (move_uploaded_file($fileTmpName11, $uploadPath11)) {
-                                                            // Store the uploaded file names in the array
-                                                            $uploadedFiles11[] = $fileName11;
-                                                        } else {
-                                                            // Print error if the file couldn't be moved
-                                                            echo "Failed to move file $fileTmpName11 to $uploadPath11<br>";
-                                                            // Check if the directory is writable
-                                                            if (!is_writable($uploadDir11)) {
-                                                                echo "Upload directory is not writable.<br>";
+                                            if($_FILES["LocationImg"] != '')
+                                            {
+                                                for ($i = 0;$i < count($_FILES["LocationImg"]["name"]);$i++) {
+                                                    $LocationImg1 = time() . "-" . rand(1000, 9999) . "-DOC-" . $_FILES["LocationImg"]["name"][$i];
+                                                    $LocationImg = str_replace(",", "", "$LocationImg1");
+                                                    if ($_FILES["LocationImg"]["name"][$i] != '') {
+                                                        if (strtolower(end(explode(".", $LocationImg))) == "jpg" OR strtolower(end(explode(".", $LocationImg))) == "jpeg" OR strtolower(end(explode(".", $LocationImg))) == "png") {
+                                                            if (move_uploaded_file($_FILES["LocationImg"]["tmp_name"][$i], "../assets/storage/LocationImages/" . $LocationImg)) {
+                                                                $queryf12 = mysqli_query($db, "SELECT location_img FROM `add_events` WHERE id  = '$latestInsertedID'");
+                                                                $rowf12 = mysqli_fetch_assoc($queryf12);
+                                                                $LocationImg11 = $rowf12['location_img'];
+                                                                if ($LocationImg11 == '') {
+                                                                    $LocationImg111 = $LocationImg;
+                                                                } else {
+                                                                    $LocationImg111 = $LocationImg11 . ',' . $LocationImg;
+                                                                }
                                                             }
                                                         }
                                                     }
-                                                    // Concatenate file names into a single string separated by commas
-                                                    $attachments11 = implode(",", $uploadedFiles11);
-                                                } else {
-                                                    echo "No files uploaded for location $NewLocation<br>";
-                                                }
-                                        
-                                                // Insert the location and image data into the database
-                                                $sql = mysqli_query($db, "INSERT INTO `eventlocationimage` (`id`, `eventID`, `location`, `location_img`, `deletedStatus`, `CreatedAt`) VALUES (NULL, '$latestInsertedID', '$NewLocation', '$attachments11', '0', current_timestamp())");
-                                        
-                                                // if ($db->query($sql) === TRUE) {
-                                                //     echo "New record created successfully for location $NewLocation<br>";
-                                                // } else {
-                                                //     echo "Error: " . $sql . "<br>" . $db->error;
-                                                // }
+                                                
+                                                }   
                                             }
-                                        
 
-
+                                            $SaveEvent =  mysqli_query($db, "INSERT INTO `add_events`(`id`, `sports_name`, `slot_duration`, `banner_img`, `location`, `location_img`, `start_date`, `end_date`, `start_time`, `end_time`, `capacity`, `one_day_slot`, `description`, `terms_condition`, `deleted_status`, `updated_at`, `created_at`) VALUES (NULL,'$SportName','$SlotDuration','$BannerImagesFInal','$Location','$LocationImg111','$BookingStartDate','$BookingEndDate','$StartTime','$EndTime','$TotalCapacity','$OneDaySlotBefore','$Description','$Termscondition','0',NULL,CURRENT_TIMESTAMP)");
                                             if($SaveEvent)
                                             {
                                                 $_SESSION['status'] = "Sport Name saved successfully.";
@@ -532,7 +567,7 @@
                 count++;
                 document.getElementById('NonConformitysDocument').insertAdjacentHTML(
                     'beforeend',
-                    '<div class="row" id="row' + count + '"><div class="col-md-5"><div class="form-group"><label for="location">Location<span class="text-danger">*</span></label><select name="Location[]" id="location" class="form-control form-control-lg" style="padding: 18px;"><option value="">Select Location</option><?php $SportsQuery = mysqli_query($db, "SELECT * FROM `master_location` WHERE deletedstatus='0' ORDER BY location_name ASC");while($sports = mysqli_fetch_assoc($SportsQuery)){?><option value="<?php echo $sports['id']; ?>"><?php echo $sports['location_name']; ?></option><?php } ?></select></div></div><div class="col-md-5"><div class="form-group"><label for="LocationImg">Location Image<span class="text-danger">*</span></label><input name="LocationImg' + count + '[]" type="file" class="form-control form-control-lg" id="LocationImg" multiple></div></div><div class="col-md-2"><div class="col-md-1"><button type="button" class="btn btn-danger mt-5" onclick="delete_reports(\'row' + count + '\')">Delete</button></div></div>'
+                    '<div class="row" id="row' + count + '"><div class="col-md-5"><div class="form-group"><label for="location">Location<span class="text-danger">*</span></label><select name="Location[]" id="location" class="form-control form-control-lg" style="padding: 18px;"><option value="">Select Location</option><?php $SportsQuery = mysqli_query($db, "SELECT * FROM `master_location` WHERE deletedstatus='0' ORDER BY location_name ASC");while($sports = mysqli_fetch_assoc($SportsQuery)){?><option value="<?php echo $sports['id']; ?>"><?php echo $sports['location_name']; ?></option><?php } ?></select></div></div><div class="col-md-5"><div class="form-group"><label for="LocationImg">Location Image<span class="text-danger">*</span></label><input name="LocationImg[]" type="file" class="form-control form-control-lg" id="LocationImg" multiple></div></div><div class="col-md-2"><div class="col-md-1"><button type="button" class="btn btn-danger mt-5" onclick="delete_reports(\'row' + count + '\')">Delete</button></div></div>'
                 );
             }
             function delete_reports(rowId) {
@@ -541,6 +576,32 @@
                 if (count < 1) {
                     count = 1;
                 }
+            }
+
+            function UpdateRecord(rowId) {
+                document.getElementById(rowId).remove();
+                count--;
+                if (count < 1) {
+                    count = 1;
+                }
+
+                // AJAX request to update the database
+                let xhr = new XMLHttpRequest();
+                xhr.open('POST', 'RemoveLocationImg', true); // Adjust the PHP script path as necessary
+                xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        // Handle the response if needed
+                        console.log(xhr.responseText); // Log the response for debugging
+                    }
+                };
+                
+                // Prepare data to send
+                let params = 'rowId=' + encodeURIComponent(rowId); // Adjust data as needed
+                
+                // Send the request
+                xhr.send(params);
+
             }
     </script>
     <?php 

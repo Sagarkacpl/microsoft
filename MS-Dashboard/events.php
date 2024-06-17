@@ -1,6 +1,7 @@
 <?php 
     session_start();
     error_reporting(0);
+    // ini_set('display_errors',1);
     include('inc/function.php');
     include('inc/csrf_token.php');
     include('inc/dbcon.php');
@@ -70,72 +71,101 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Name of Sports</th>
-                                                    <th>Created At</th>
+                                                    <th>Banner Image</th>
+                                                    <th>Slot</th>
+                                                    <th>StartDate And endDate </th>
+                                                    <th>StartTime And EndTime</th>
                                                     <th>Action</th>
+                                                          
                                                 </tr>
                                             </thead>
                                             <tbody>
+
                                                 <?php 
-                                                    $FetchQuery = mysqli_query($db, "SELECT * FROM `master_sports` WHERE deletedstatus='0' ORDER BY id DESC");
+                                                    $query="SELECT * FROM `add_events` WHERE deleted_status='0' ORDER BY id DESC";
+                                                    $FetchQuery = mysqli_query($db, $query);
                                                     $count = 1 ;
                                                     while($read = mysqli_fetch_assoc($FetchQuery)){
                                                 ?>
                                                 <tr>
                                                     <td><?php echo $count; ?></td>
-                                                    <td class="py-1"><?php echo $read['sports_name'] ?></td>
-                                                    <td><?php echo $date =  date("d-M-Y", strtotime($read['created_at'])) ?></td>
-                                                    <td>
-                                                    <a class="btn btn-info" data-bs-toggle="modal" data-bs-target="#edit-modal-<?php echo $read['id']; ?>">Edit</a>
-                                                    <!--  Edit Modal  -->
-                                                    <div class="modal fade" id="edit-modal-<?php echo $read['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="EditmodalTitleId" aria-hidden="true">
-                                                        <div class="modal-dialog" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="EditmodalTitleId">Edit <?php echo $read['sports_name'] ?></h5>
-                                                                    <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal" aria-label="Close"><i class="icon-cross"></i></button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    <form method="post" autocomplete="off">
-                                                                        <input type="hidden" name="_token" value="<?php echo $token; ?>" class="form-control">
-                                                                        <input type="hidden" name="recordID" value="<?php echo $read['id']; ?>" class="form-control">
-                                                                        <div class="mb-3">
-                                                                            <label for="NameSports" class="form-label text-left">Name of Sports</label>
-                                                                            <input type="text" name="EditSportsName" value="<?php echo $read['sports_name'] ?>" id="NameSports" class="form-control" placeholder="Enter Name of Sports" aria-describedby="helpId" required />
-                                                                        </div>
-                                                                        <div class="mb-3">
-                                                                            <button type="submit" class="btn btn-primary">Update</button>
-                                                                        </div>
-                                                                    </form>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <!-- Optional footer content can be added here -->
-                                                                </div>
-                                                            </div>
-                                                            <?php 
-                                                                if (isset($_POST['EditSportsName']) && empty($csrf_error)) {
-                                                                    // Sanitize the input
-                                                                    $EditSportsName = filter_var(trim($_POST["EditSportsName"]), FILTER_SANITIZE_STRING);
-                                                                    $recordID = mysqli_real_escape_string($db, $_POST['recordID']);
-                                                                    $CurrentDate = date("Y-m-d H:i:s");
-                                                                    $stmt = $db->prepare("UPDATE `master_sports` SET `sports_name`=?, `updated_at`=? WHERE id=?");
-                                                                    $stmt->bind_param("ssi", $EditSportsName, $CurrentDate, $recordID);                                                                
-                                                                    if ($stmt->execute()) {
-                                                                        $_SESSION['Edit_status'] = "Sport Name updated successfully.";
-                                                                        $_SESSION['Edit_status_code'] = "success";
-                                                                    } else {
-                                                                        $_SESSION['Edit_status'] = "Failed to update Sport Name. Please try again.";
-                                                                        $_SESSION['Edit_status_code'] = "error";
-                                                                    }
-                                                                } else {
-                                                                    $_SESSION['Edit_status'] = $csrf_error;
-                                                                    $_SESSION['Edit_status_code'] = "error";
-                                                                }
-                                                            ?>
-                                                        </div>
-                                                    </div>
-                                                        <button type="button" class="btn btn-danger"
-                                                            id="addBtn">Delete</button>
+                                                    <td class="py-1">
+                                                        <?php
+                                                            $sportQuery = mysqli_query($db, "SELECT * FROM `master_sports` WHERE deletedstatus='0'");
+                                                            while($exe = mysqli_fetch_assoc($sportQuery))
+                                                            {
+                                                                if($read['sports_name'] === $exe['id'] )
+                                                            {
+                                                                echo $exe['sports_name'];
+                                                            }
+                                                            }
+                                                          
+                                                        ?>
                                                     </td>
+                                                    <td>
+                                                        <a href="../assets/storage/BannerImages/<?php echo $read['banner_img'] ?>" target="_blank" rel="noopener noreferrer"><img src="../assets/storage/BannerImages/<?php echo $read['banner_img'] ?>"/></a>
+                                                    </td>
+                                                    <td> <?php echo $read['slot_duration'] ?></td>
+                                                  
+                                                 <td>  <?php echo  $date =  date("d-M-Y", strtotime($read['start_date']));?> - <?php echo  $date =  date("d-M-Y", strtotime($read['end_date']));?>
+                                              
+                                                </td>
+                                                  
+                                                 <td>  <?php echo  $read['start_time'];?> - <?php echo  ($read['end_time']);?>
+                                              
+                                                </td>
+                                                      
+                                                <td>
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteRecord('<?php echo convert_string('encrypt', $read['id']);?>');">Delete</button>
+                                                        <script>
+                                                            function confirmDeleteRecord(id) {
+                                                                swal({
+                                                                    title: "Are you sure?",
+                                                                    text: "You want to delete this record!",
+                                                                    icon: "warning",
+                                                                    buttons: ["Cancel", "Yes, Delete It!"],
+                                                                    dangerMode: true,
+                                                                }).then((willDelete) => {
+                                                                    if (willDelete) {
+                                                                        // Send AJAX request to delete the record
+                                                                        deleteRecord(id);
+                                                                    }
+                                                                });
+
+                                                                document.querySelector('.swal-button--confirm').style.backgroundColor = "#4CAF50"; // Green color
+                                                                document.querySelector('.swal-button--cancel').style.backgroundColor = "#f44336"; // Red color
+                                                                document.querySelector('.swal-button--cancel').style.color = "#ffffff";
+
+                                                                return false; // Prevent default link action
+                                                            }
+
+                                                            function deleteRecord(id) {
+                                                                // Send AJAX request to the server to delete the record
+                                                                var xhr = new XMLHttpRequest();
+                                                                xhr.open("GET", "delete-events?delted_id=" + id, true);
+                                                                xhr.onload = function() {
+                                                                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                                                                        if (xhr.status === 200) {
+                                                                            var response = xhr.responseText;
+                                                                            if (response.trim() === 'success') {
+                                                                                // Optional: Display a success message or update the UI
+                                                                                swal("Success!", "Record deleted successfully.", "success").then(() => {
+                                                                                    window.location.reload(); // Reload the page or update the UI
+                                                                                });
+                                                                            } else {
+                                                                                // Optional: Display an error message or update the UI
+                                                                                swal("Error!", "Failed to delete the record.", "error");
+                                                                            }
+                                                                        } else {
+                                                                            // Optional: Display an error message or update the UI
+                                                                            swal("Error!", "Failed to delete the record.", "error");
+                                                                        }
+                                                                    }
+                                                                };
+                                                                xhr.send();
+                                                            }
+                                                        </script>
+                                                    
                                                 </tr>
                                                 <?php $count++; } ?>
                                             </tbody>
@@ -216,7 +246,7 @@
             { ?> 
             <script>
             var redirectURL = "sports-list"; 
-            swal({
+            swa({
                 title: "<?php echo $_SESSION['Edit_status']; ?>",
                 icon: "<?php echo $_SESSION['Edit_status_code']; ?>",
                 button: "Okay",
